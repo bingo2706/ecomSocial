@@ -3,10 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import OnboardingScreen from '../screens/OnboardingScreen';
-import Login from '../screens/Login';
+import Login from '../screens/LoginScreen';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import HomeScreen from '../screens/HomeScreen';
+import DetailOrderScreen from '../screens/DetailOrderScreen';
 
 
 const Stack = createStackNavigator();
@@ -47,14 +49,29 @@ const AuthStack = () => {
             <Stack.Screen
                 name="Login"
                 component={Login}
-                options={{ header: () => null }}
+
             />
             <Stack.Screen
                 name="Signup"
                 component={Login}
 
             />
+            <Stack.Screen
+                name="HomeScreen"
+                options={{
+                    title: 'Trang chủ',
+                }}
+                component={HomeScreen}
 
+            />
+            <Stack.Screen
+                name="DetailOrderScreen"
+                options={{
+                    title: 'Chi tiết đơn hàng',
+                }}
+                component={DetailOrderScreen}
+
+            />
         </Stack.Navigator>
     );
 };
