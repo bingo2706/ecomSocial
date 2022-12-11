@@ -25,32 +25,27 @@ const DoneOrderScreen = ({ navigation }) => {
             AsyncStorage.getItem('userData').then((value) => {
                 if (value) {
                     setuserData(JSON.parse(value))
+                    loadOrderData(JSON.parse(value).id)
                 }
             });
-            loadOrderData(userData.id)
+
         });
         return focusHandler;
 
 
     }, [navigation])
-    let loadOrderData = () => {
-        try {
-            let fetchData = async (shipperId) => {
-                let arrData = await getAllOrdersByShipper({
+    let loadOrderData = async (shipperId) => {
+        let arrData = await getAllOrdersByShipper({
 
-                    status: 'done',
-                    shipperId: shipperId
+            status: 'done',
+            shipperId: shipperId
 
-                })
-                if (arrData && arrData.errCode === 0) {
-                    setdataOrder(arrData.data)
+        })
+        if (arrData && arrData.errCode === 0) {
+            setdataOrder(arrData.data)
 
-                }
-            }
-            fetchData();
-        } catch (error) {
-            console.log(error)
         }
+
     }
     let handleClickItem = (id) => {
 

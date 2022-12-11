@@ -9,6 +9,7 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HomeScreen from '../screens/HomeScreen';
 import DetailOrderScreen from '../screens/DetailOrderScreen';
+import TakePhoto from '../screens/TakePhoto';
 
 
 const Stack = createStackNavigator();
@@ -70,6 +71,14 @@ const AuthStack = () => {
                     title: 'Chi tiết đơn hàng',
                 }}
                 component={DetailOrderScreen}
+
+            />
+            <Stack.Screen
+                name="TakePhoto"
+                options={{
+                    title: 'Chụp ảnh',
+                }}
+                component={TakePhoto}
 
             />
         </Stack.Navigator>

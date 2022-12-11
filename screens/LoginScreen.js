@@ -65,7 +65,7 @@ const LoginScreen = ({ navigation }) => {
             />
 
             <FormButton
-                buttonTitle="Sign In"
+                buttonTitle="Đăng nhập"
                 onPress={() => hadleLogin()}
             />
         </ScrollView>
