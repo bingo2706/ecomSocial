@@ -27,9 +27,10 @@ const WorkingOrderScreen = ({ navigation }) => {
             AsyncStorage.getItem('userData').then((value) => {
                 if (value) {
                     setuserData(JSON.parse(value))
+                    loadOrderData(JSON.parse(value).id)
                 }
             });
-            loadOrderData(userData.id)
+
         });
 
         return focusHandler;

@@ -19,6 +19,7 @@ import { useEffect } from 'react';
 import { getDetailOrder, confirmOrder } from '../services/userService'
 const Tab = createBottomTabNavigator();
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const DetailOrderScreen = ({ route, navigation }) => {
 
     const { orderId } = route.params;
@@ -34,14 +35,19 @@ const DetailOrderScreen = ({ route, navigation }) => {
         }
     }
     let handleSuccessShip = async () => {
-        let res = await confirmOrder({
-            orderId: orderId,
-            statusId: 'S6',
-            shipperId: userData.id
-        })
-        if (res && res.errCode == 0) {
-            loadDataOrder()
+        if (!DataOrder.image) {
+            alert("Chụp ảnh trước khi hoàn thành đơn")
+        } else {
+            let res = await confirmOrder({
+                orderId: orderId,
+                statusId: 'S6',
+                shipperId: userData.id
+            })
+            if (res && res.errCode == 0) {
+                loadDataOrder()
+            }
         }
+
     }
     const openMap = async (address) => {
 
@@ -61,13 +67,19 @@ const DetailOrderScreen = ({ route, navigation }) => {
     const [DataOrder, setDataOrder] = useState({});
     const [userData, setuserData] = useState({});
     useEffect(() => {
-        loadDataOrder()
-        AsyncStorage.getItem('userData').then((value) => {
-            if (value) {
-                setuserData(JSON.parse(value))
-            }
+        const focusHandler = navigation.addListener('focus', () => {
+            AsyncStorage.getItem('userData').then((value) => {
+                if (value) {
+                    setuserData(JSON.parse(value))
+
+                    loadDataOrder()
+                }
+            });
+
         });
-    }, [])
+        return focusHandler;
+
+    }, [navigation])
     let loadDataOrder = () => {
         if (orderId) {
 
@@ -82,7 +94,7 @@ const DetailOrderScreen = ({ route, navigation }) => {
                         price += item.quantity * item.productDetail.discountPrice
                     })
                     setprice(price)
-                    console.log(order.data)
+
                 }
             }
             fetchOrder()
@@ -109,82 +121,98 @@ const DetailOrderScreen = ({ route, navigation }) => {
 
 
     }
+    const handleTakePhoto = () => {
+        navigation.navigate("TakePhoto", {
+            orderId: orderId
+        })
+    }
     return (
-
-        <View contentContainerStyle={styles.container}>
-            {DataOrder && DataOrder.typeShipData &&
-                <>
-                    <View style={styles.box_top}>
-                        <View style={{ borderBottomColor: 'white', borderBottomWidth: 1 }}>
-                            <Text style={{ color: 'white', fontSize: 20 }}>{DataOrder.typeShipData.type}</Text>
-                            <Text style={{ color: 'white', fontSize: 14 }}>Mã đơn: {orderId}</Text>
-                        </View>
-                        <View style={{ borderBottomColor: 'white', borderBottomWidth: 1 }}>
-                            <Text style={{ color: 'white', marginTop: 10 }}>{DataOrder.addressUser.shipName} ({DataOrder.addressUser.shipPhonenumber})</Text>
-                            <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 20 }}>
-                                <Text style={{ color: 'white', marginTop: 10, width: 300 }}>{DataOrder.addressUser.shipAdress}</Text>
-                                <Ionicons onPress={() => openMap(DataOrder.addressUser.shipAdress)} name={"map-outline"} color={'orange'} size={20} />
+        <ScrollView>
+            <View contentContainerStyle={styles.container}>
+                {DataOrder && DataOrder.typeShipData &&
+                    <>
+                        <View style={styles.box_top}>
+                            <View style={{ borderBottomColor: 'white', borderBottomWidth: 1 }}>
+                                <Text style={{ color: 'white', fontSize: 20 }}>{DataOrder.typeShipData.type}</Text>
+                                <Text style={{ color: 'white', fontSize: 14 }}>Mã đơn: {orderId}</Text>
                             </View>
+                            <View style={{ borderBottomColor: 'white', borderBottomWidth: 1 }}>
+                                <Text style={{ color: 'white', marginTop: 10 }}>{DataOrder.addressUser.shipName} ({DataOrder.addressUser.shipPhonenumber})</Text>
+                                <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 20 }}>
+                                    <Text style={{ color: 'white', marginTop: 10, width: 300 }}>{DataOrder.addressUser.shipAdress}</Text>
+                                    <Ionicons onPress={() => openMap(DataOrder.addressUser.shipAdress)} name={"map-outline"} color={'orange'} size={20} />
+                                </View>
+                            </View>
+                            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+                                <View style={{ display: 'flex', flexDirection: 'row', }}>
+                                    <Text style={{ color: 'white' }}>Thu tiền: </Text>
+                                    {DataOrder && DataOrder.isPaymentOnlien == 0 ?
+                                        <Text style={{ color: 'orange' }}>{DataOrder && DataOrder.voucherData && DataOrder.voucherId ? totalPriceDiscount(price, DataOrder.voucherData) + priceShip : price + (+priceShip)}$</Text>
+                                        : <Text style={{ color: 'orange' }}>0$</Text>
+                                    }
+
+                                </View>
+
+                                <Text style={{ marginLeft: 10, color: 'red', fontWeight: '600', padding: 4, borderRadius: 4, backgroundColor: 'white' }}>Lấy ngay</Text>
+                            </View>
+
+
                         </View>
-                        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
-                            <View style={{ display: 'flex', flexDirection: 'row', }}>
-                                <Text style={{ color: 'white' }}>Thu tiền: </Text>
-                                {DataOrder && DataOrder.isPaymentOnlien == 0 ?
-                                    <Text style={{ color: 'orange' }}>{DataOrder && DataOrder.voucherData && DataOrder.voucherId ? totalPriceDiscount(price, DataOrder.voucherData) + priceShip : price + (+priceShip)}$</Text>
-                                    : <Text style={{ color: 'orange' }}>0$</Text>
+                        <View style={{ backgroundColor: 'white', alignItems: 'center', padding: 10, fontWeight: '700' }}>
+                            <Text>Trạng thái : {DataOrder.statusOrderData.value}</Text>
+                        </View>
+                        <View style={{ backgroundColor: 'white', marginTop: 5, padding: 10, fontWeight: '700' }}>
+                            <Text style={{ borderBottomColor: 'black', borderBottomWidth: 1 }}>Chi tiết đơn hàng</Text>
+                            <View style={{ marginTop: 10 }}>
+                                {DataOrder.orderDetail && DataOrder.orderDetail.length > 0 &&
+                                    DataOrder.orderDetail.map((item, index) => {
+
+
+                                        let name = `${item.product.name} - ${item.productDetail.nameDetail} - ${item.productDetailSize.sizeData.value}`
+                                        return (
+                                            <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', borderBottomColor: '#75b5d8', borderBottomWidth: 1 }}>
+                                                <Text style={styles.text_product}>{name}</Text>
+                                                <Text style={styles.text_quantity}>x{item.quantity}</Text>
+                                            </View>
+                                        )
+                                    })
+
                                 }
 
+
+
                             </View>
-
-                            <Text style={{ marginLeft: 10, color: 'red', fontWeight: '600', padding: 4, borderRadius: 4, backgroundColor: 'white' }}>Lấy ngay</Text>
+                            <Text style={{ marginTop: 10 }}>Hình ảnh đơn hàng</Text>
+                            <Image style={{ width: 200, height: 200 }} source={{ uri: DataOrder.image }}></Image>
                         </View>
 
-
-                    </View>
-                    <View style={{ backgroundColor: 'white', alignItems: 'center', padding: 10, fontWeight: '700' }}>
-                        <Text>Trạng thái : {DataOrder.statusOrderData.value}</Text>
-                    </View>
-                    <View style={{ backgroundColor: 'white', marginTop: 5, padding: 10, fontWeight: '700' }}>
-                        <Text style={{ borderBottomColor: 'black', borderBottomWidth: 1 }}>Chi tiết đơn hàng</Text>
-                        <View style={{ marginTop: 10 }}>
-                            {DataOrder.orderDetail && DataOrder.orderDetail.length > 0 &&
-                                DataOrder.orderDetail.map((item, index) => {
-
-
-                                    let name = `${item.product.name} - ${item.productDetail.nameDetail} - ${item.productDetailSize.sizeData.value}`
-                                    return (
-                                        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between', borderBottomColor: '#75b5d8', borderBottomWidth: 1 }}>
-                                            <Text style={styles.text_product}>{name}</Text>
-                                            <Text style={styles.text_quantity}>x{item.quantity}</Text>
-                                        </View>
-                                    )
-                                })
-
+                        <View style={{ marginBottom: 10 }}>
+                            {DataOrder && DataOrder.statusId == 'S4' &&
+                                <FormButton
+                                    buttonTitle="Nhận đơn"
+                                    onPress={() => handleSendProduct()}
+                                />
                             }
-
-
-
+                            {DataOrder && DataOrder.statusId == 'S5' &&
+                                <FormButton
+                                    buttonTitle="Đã giao hàng"
+                                    onPress={() => handleSuccessShip()}
+                                />
+                            }
+                            {DataOrder && !DataOrder.image && DataOrder.statusId == 'S5' &&
+                                < FormButton
+                                    buttonTitle="Chụp ảnh"
+                                    onPress={() => handleTakePhoto()}
+                                />
+                            }
                         </View>
 
-                    </View>
+                    </>
+                }
 
-                    {DataOrder && DataOrder.statusId == 'S4' &&
-                        <FormButton
-                            buttonTitle="Gửi hàng"
-                            onPress={() => handleSendProduct()}
-                        />
-                    }
-                    {DataOrder && DataOrder.statusId == 'S5' &&
-                        <FormButton
-                            buttonTitle="Đã giao hàng"
-                            onPress={() => handleSuccessShip()}
-                        />
-                    }
+            </View >
+        </ScrollView>
 
-                </>
-            }
-
-        </View >
     );
 };
 
