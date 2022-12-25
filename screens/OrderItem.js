@@ -29,7 +29,7 @@ const OrderItem = (props) => {
                     <View style={{ display: 'flex', paddingLeft: 10, paddingTop: 10 }}>
                         <Text>Mã đơn: {data.id}</Text>
 
-                        <Text>Giá tiền: {data.typeShipData.price} $</Text>
+                        <Text>Giá tiền: {data.typeShipData.price}đ</Text>
                         <Text>Loại: {data.typeShipData.type}</Text>
                         <Text>Hình thức: {data.isPaymentOnlien == 0 ? 'Thanh toán trực tiếp' : 'Thanh toán online'}</Text>
                     </View>

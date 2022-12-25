@@ -148,7 +148,7 @@ const DetailOrderScreen = ({ route, navigation }) => {
                                     <Text style={{ color: 'white' }}>Thu tiền: </Text>
                                     {DataOrder && DataOrder.isPaymentOnlien == 0 ?
                                         <Text style={{ color: 'orange' }}>{DataOrder && DataOrder.voucherData && DataOrder.voucherId ? totalPriceDiscount(price, DataOrder.voucherData) + priceShip : price + (+priceShip)}$</Text>
-                                        : <Text style={{ color: 'orange' }}>0$</Text>
+                                        : <Text style={{ color: 'orange' }}>0đ</Text>
                                     }
 
                                 </View>
